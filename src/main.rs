@@ -6,6 +6,9 @@ use clap::Parser;
 // Compile with:
 // CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=x86_64-unknown-linux-gnu-gcc cargo build --target=x86_64-unknown-linux-gnu
 
+// Docker run:
+// docker run --rm -it -v /Users/echostone/Documents/ICS2023/0xc/rpm/target/x86_64-unknown-linux-gnu/debug:/home --privileged --platform linux/amd64 ubuntu bin/bash
+
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {

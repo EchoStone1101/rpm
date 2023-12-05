@@ -2,6 +2,7 @@ use std::process::exit;
 
 use pagemap::*;
 use clap::Parser;
+use colored::Colorize;
 
 // Compile with:
 // CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=x86_64-unknown-linux-gnu-gcc cargo build --target=x86_64-unknown-linux-gnu
@@ -18,14 +19,14 @@ struct Cli {
     #[arg(help = "the virtual address of the target pagemap entry")]
     addr: Option<String>,
 
-    #[arg(short, long, help = "dump the entire memory region(s)")]
+    #[arg(short, long, help = "dump the entire memory region")]
     all: bool,
 }
 
 macro_rules! ensure {
     ($result: expr) => {
         $result.unwrap_or_else(|err| {
-            eprintln!("{err}");
+            eprintln!("{}", err.to_string().red());
             exit(-1);
         })
     };
@@ -33,13 +34,16 @@ macro_rules! ensure {
 
 fn dump_maps_hdr() {
     println!(
-        "{:<64} {:<8} {:<10} {:<10} {:<10} {}",
-        "Memory Region (size)",
-        "Perm",
-        "Offset",
-        "Device",
-        "Inode",
-        "Path",
+        "{}",
+        format!(
+            "{:<64} {:<8} {:<10} {:<10} {:<10} {}",
+            "Memory Region (size)",
+            "Perm",
+            "Offset",
+            "Device",
+            "Inode",
+            "Path",
+        ).green()
     );
 }
 
@@ -57,20 +61,23 @@ fn dump_maps_entry(entry: &MapsEntry) {
 
 fn dump_pmaps_hdr() {
     println!(
-        "{:<18}  {:<12} {:<8} {:<8} {:<8} {:<8} {:<8}",
-        "VirtAddr",
-        "PFN",
-        "Present",
-        "Swapped",
-        "FileMap",
-        "Shared",
-        "Dirty",
+        "{}",
+        format!(
+            "{:<18}  {:<12} {:<8} {:<8} {:<8} {:<8} {:<10}",
+            "VirtAddr",
+            "PFN",
+            "Present",
+            "Swapped",
+            "FileMap",
+            "Shared",
+            "SoftDirty",
+        ).green()
     );
 }
 
 fn dump_pmaps_entry(addr: u64, entry: &PageMapEntry) {
     println!(
-        "0x{:0>16x}  {:<12} {:<8} {:<8} {:<8} {:<8} {:<8}",
+        "0x{:0>16x}  {:<12} {:<8} {:<8} {:<8} {:<8} {:<10}",
         addr,
         entry.pfn().map(|pfn| format!("0x{:<10x}", pfn)).unwrap_or("-".to_string()),
         if entry.present() { "[*]" } else { "[ ]" },
@@ -100,28 +107,23 @@ fn main() {
 
     match (addr, entry) {
         (Some(addr), Some((maps_entry, pmap_entry))) => {
-            println!();
-            dump_maps_hdr();
-            dump_maps_entry(maps_entry);
-
+            // dump_maps_hdr();
+            // dump_maps_entry(maps_entry);
             let region = maps_entry.memory_region();
             if cli.all {
-                println!();
                 dump_pmaps_hdr();
                 for idx in 0..pmap_entry.len() as u64 {
                     dump_pmaps_entry(region.start_address() + idx * page_sz, pmap_entry.get(idx as usize).unwrap());
                 }
             } else {
                 let idx = (addr - region.start_address()) / page_sz;
-                println!();
                 dump_pmaps_hdr();
                 dump_pmaps_entry(region.start_address() + idx * page_sz, pmap_entry.get(idx as usize).unwrap());
             }
         }
         _ => {
             if let Some(addr) = addr {
-                println!();
-                println!("[Warning] Address 0x{:x} is not mapped..\n", addr);
+                println!("{}", format!("[Warning] Address 0x{:x} is not mapped..\n", addr).yellow());
             }
             // Simply dump `maps`
             dump_maps_hdr();
@@ -130,5 +132,4 @@ fn main() {
             }
         }
     }
-    
 }

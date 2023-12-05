@@ -93,21 +93,13 @@ Memory Region (size)                                             Perm     Offset
 From which one can pick the virtual page that is of interest, such as:
 ```bash
 root@021488b1d7d7:/home> ./rpm 14 0x00000000004ba000   
-
-Memory Region (size)                                             Perm     Offset     Device     Inode      Path
-0x00000000004ba000-0x00000000004cf000 (   84K)                   rw-p     2662400    7:0        78570      /usr/bin/qemu-x86_64
-
 VirtAddr            PFN          Present  Swapped  FileMap  Shared   Dirty   
 0x00000000004ba000  0x1719d8     [*]      [ ]      [ ]      [ ]      [ ]   
 ```
 
 Or use `-a` to examine the entire region:
 ```bash
-root@021488b1d7d7:/home> ./rpm 14 0x00000000004ba000 -a                                                                                                          
-
-Memory Region (size)                                             Perm     Offset     Device     Inode      Path
-0x00000000004ba000-0x00000000004cf000 (   84K)                   rw-p     2662400    7:0        78570      /usr/bin/qemu-x86_64
-
+root@021488b1d7d7:/home> ./rpm 14 0x00000000004ba000 -a                                                                      
 VirtAddr            PFN          Present  Swapped  FileMap  Shared   Dirty   
 0x00000000004ba000  0x1719d8     [*]      [ ]      [ ]      [ ]      [ ]     
 0x00000000004bb000  0x13b69d     [*]      [ ]      [*]      [*]      [ ]     

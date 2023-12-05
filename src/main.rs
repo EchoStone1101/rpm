@@ -50,7 +50,8 @@ fn dump_maps_hdr() {
 fn dump_maps_entry(entry: &MapsEntry) {
     println!(
         "{:<64} {:<8} {:<10} {:<10} {:<10} {}", 
-        entry.memory_region().to_string(), 
+        // entry.memory_region().to_string(), 
+        entry.vma().to_string(),
         entry.permissions().to_string(), 
         entry.offset().to_string(), 
         entry.device_numbers().to_string(), 
@@ -102,14 +103,14 @@ fn main() {
     let entry = addr
         .as_ref()
         .and_then(|addr| {
-            entries.iter().find(|(entry, _)| entry.memory_region().contains(*addr))
+            entries.iter().find(|(entry, _)| entry.vma().contains(*addr))
         });
 
     match (addr, entry) {
         (Some(addr), Some((maps_entry, pmap_entry))) => {
             // dump_maps_hdr();
             // dump_maps_entry(maps_entry);
-            let region = maps_entry.memory_region();
+            let region = maps_entry.vma();
             if cli.all {
                 dump_pmaps_hdr();
                 for idx in 0..pmap_entry.len() as u64 {
